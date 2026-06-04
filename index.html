@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>theDigestiveRush v5 Combo</title>
+<title>theDigestiveRush FINAL 1.0</title>
 <style>
 :root{
   --bg:#061018;--panel:#101b27;--panel2:#16263a;--line:#2d435b;
@@ -11,14 +11,16 @@
   --red:#ff4d6d;--gold:#ffe66d;--purple:#c79cff;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
 body{
   margin:0;overflow:hidden;text-align:center;color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:radial-gradient(circle at top,#1a3a55 0%,#071018 55%,#02060b 100%);
+  touch-action:manipulation;
 }
 .screen{
-  width:100%;max-width:430px;height:100svh;margin:0 auto;padding:12px;
-  display:flex;flex-direction:column;gap:8px;position:relative;
+  width:100%;max-width:430px;height:100svh;margin:0 auto;padding:10px;
+  display:flex;flex-direction:column;gap:7px;position:relative;
 }
 .hidden{display:none!important}
 .card{
@@ -34,13 +36,14 @@ button{
   color:#031018;background:linear-gradient(135deg,var(--cyan),var(--mint));
   box-shadow:0 8px 22px rgba(53,208,255,.18);
 }
+button:active{transform:scale(.97)}
 button.secondary{background:#223246;color:var(--text);border:1px solid var(--line)}
 .small{font-size:12px;color:var(--muted);line-height:1.55}
 .topbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;font-size:11px}
-.stat{background:rgba(16,27,39,.9);border:1px solid var(--line);border-radius:14px;padding:6px 2px}
+.stat{background:rgba(16,27,39,.9);border:1px solid var(--line);border-radius:14px;padding:5px 2px}
 .stat b{display:block;font-size:17px;color:var(--text)}
 .section{
-  background:rgba(16,27,39,.88);border:1px solid var(--line);border-radius:18px;padding:8px;
+  background:rgba(16,27,39,.88);border:1px solid var(--line);border-radius:17px;padding:7px;
   box-shadow:inset 0 0 20px rgba(53,208,255,.035);
 }
 .label{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;letter-spacing:.13em;margin:0 2px 5px}
@@ -54,14 +57,14 @@ button.secondary{background:#223246;color:var(--text);border:1px solid var(--lin
 }
 .queue-slot.empty{opacity:.35}
 .organ-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.organ{min-height:58px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.organ{min-height:56px;display:flex;flex-direction:column;justify-content:center;align-items:center}
 .organ .food{font-size:25px;height:28px}
 .organ .name{font-size:14px;color:var(--muted)}
 .action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.action{min-height:42px;padding:5px 2px;display:flex;flex-direction:column;justify-content:center;font-size:11px;font-weight:700}
+.action{min-height:41px;padding:5px 2px;display:flex;flex-direction:column;justify-content:center;font-size:11px;font-weight:700}
 .action .icon{font-size:16px}
 .selected{outline:2px solid var(--gold);box-shadow:0 0 18px rgba(255,230,109,.35)}
-#msg{min-height:28px;color:var(--mint);font-size:13px;padding:4px}
+#msg{min-height:27px;color:var(--mint);font-size:13px;padding:3px}
 .flash-good{animation:good .16s}.flash-bad{animation:bad .16s}.flash-absorb{animation:absorb .22s}
 @keyframes good{0%{box-shadow:0 0 0 999px rgba(53,208,255,.20)}100%{box-shadow:none}}
 @keyframes bad{0%{box-shadow:0 0 0 999px rgba(255,77,109,.24)}100%{box-shadow:none}}
@@ -81,6 +84,7 @@ button.secondary{background:#223246;color:var(--text);border:1px solid var(--lin
   100%{opacity:0;transform:translate(-50%,-58%) scale(1)}
 }
 .ranklist{line-height:1.75;color:var(--text)}
+.footer-note{font-size:10px;color:var(--muted);margin-top:10px}
 </style>
 </head>
 <body>
@@ -88,21 +92,22 @@ button.secondary{background:#223246;color:var(--text);border:1px solid var(--lin
 <div id="title" class="screen">
   <div class="card" id="modeCard">
     <h1>theDigestiveRush</h1>
-    <div class="subtitle">消化・吸収スピードアクション</div>
-    <button onclick="showDifficulty()">60秒モード</button>
-    <button onclick="startGame('endless')">フリーモード</button>
+    <div class="subtitle">FINAL 1.0 / 消化・吸収スピードアクション</div>
+    <button onclick="tapSelect();showDifficulty()">60秒モード</button>
+    <button onclick="tapStart();startGame('endless')">フリーモード</button>
     <p class="small">60秒モードは難易度選択。<br>フリーモードは時間無制限でだんだん加速。</p>
+    <div class="footer-note">正解：青　吸収：黄　ミス：赤</div>
   </div>
 
   <div class="card hidden" id="difficultyCard">
     <h2>60秒モード</h2>
     <div class="subtitle">難易度を選択</div>
-    <button onclick="startGame('60','easy')">Easy</button>
-    <button onclick="startGame('60','normal')">Normal</button>
-    <button onclick="startGame('60','hard')">Hard</button>
-    <button onclick="startGame('60','expert')">Expert</button>
-    <br><button class="secondary" onclick="backTitle()">戻る</button>
-    <p class="small">EasyとNormalは学習しやすい速度に調整済み。</p>
+    <button onclick="tapStart();startGame('60','easy')">Easy 5.5s</button>
+    <button onclick="tapStart();startGame('60','normal')">Normal 4.5s</button>
+    <button onclick="tapStart();startGame('60','hard')">Hard 3.0s</button>
+    <button onclick="tapStart();startGame('60','expert')">Expert 1.8s</button>
+    <br><button class="secondary" onclick="tapSelect();backTitle()">戻る</button>
+    <p class="small">食べ物追加間隔が短いほど高難度。</p>
   </div>
 </div>
 
@@ -112,7 +117,7 @@ button.secondary{background:#223246;color:var(--text);border:1px solid var(--lin
     <div class="stat">LIFE<b id="life">3</b></div>
     <div class="stat">SCORE<b id="score">0</b></div>
     <div class="stat">COMBO<b id="combo">0</b></div>
-    <div class="stat" id="timeBox">TIME<b id="time">60</b></div>
+    <div class="stat">TIME<b id="time">60</b></div>
   </div>
 
   <div class="section">
@@ -153,11 +158,12 @@ button.secondary{background:#223246;color:var(--text);border:1px solid var(--lin
     <div id="resultText"></div>
     <h3 id="rankingTitle">RANKING</h3>
     <div id="ranking" class="ranklist"></div>
-    <button onclick="location.reload()">TITLE</button>
+    <button onclick="tapSelect();location.reload()">TITLE</button>
   </div>
 </div>
 
 <script>
+let audioCtx=null;
 let mode="60",difficulty="normal",timer=60,elapsed=0,score=0,life=3,combo=0,maxCombo=0;
 let spawn=2500,spawnTimer=null,timeLoop=null,levelLoop=null;
 let queue=[],organs={mouth:null,stomach:null,duo:null,small:null};
@@ -169,11 +175,32 @@ const foods={
   fat:{icon:"🧈",type:"fat",name:"脂肪"}
 };
 const diff={
-  easy:{label:"Easy",spawn:4500},
-  normal:{label:"Normal",spawn:3500},
-  hard:{label:"Hard",spawn:2500},
-  expert:{label:"Expert",spawn:1500}
+  easy:{label:"Easy",spawn:5500},
+  normal:{label:"Normal",spawn:4500},
+  hard:{label:"Hard",spawn:3000},
+  expert:{label:"Expert",spawn:1800}
 };
+
+function getAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended") audioCtx.resume();
+  return audioCtx;
+}
+function tone(f=600,d=0.07,vol=.045,delay=0,type="sine"){
+  try{
+    let a=getAudio();
+    let o=a.createOscillator(),g=a.createGain();
+    o.connect(g);g.connect(a.destination);
+    o.frequency.value=f;o.type=type;
+    let t=a.currentTime+delay;
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.start(t);o.stop(t+d);
+  }catch(e){}
+}
+function tapSelect(){tone(760,.055,.04,0,"triangle")}
+function tapStart(){tone(520,.06,.04,0,"triangle");tone(760,.06,.04,.06,"triangle");tone(1040,.07,.04,.12,"triangle")}
+function beep(f=600,d=0.07){tone(f,d,.045,0,"sine")}
 
 function showDifficulty(){
   document.getElementById("modeCard").classList.add("hidden");
@@ -182,17 +209,6 @@ function showDifficulty(){
 function backTitle(){
   document.getElementById("difficultyCard").classList.add("hidden");
   document.getElementById("modeCard").classList.remove("hidden");
-}
-function beep(f=600,d=0.07){
-  try{
-    let a=new(window.AudioContext||window.webkitAudioContext)();
-    let o=a.createOscillator(),g=a.createGain();
-    o.connect(g);g.connect(a.destination);
-    o.frequency.value=f;o.type="sine";o.start();
-    g.gain.setValueAtTime(.045,a.currentTime);
-    g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);
-    o.stop(a.currentTime+d);
-  }catch(e){}
 }
 
 function startGame(m,d){
@@ -206,7 +222,7 @@ function startGame(m,d){
     document.getElementById("time").textContent=60;
     document.getElementById("modeInfo").textContent=diff[difficulty].label+" / MAX 6";
   }else{
-    spawn=4500;
+    spawn=5500;
     document.getElementById("time").textContent="0:00";
     document.getElementById("modeInfo").textContent="FREE / SPEED UP";
   }
@@ -231,11 +247,11 @@ function startGame(m,d){
 
   if(mode==="endless"){
     levelLoop=setInterval(()=>{
-      spawn=Math.max(800,spawn-150);
+      spawn=Math.max(800,spawn-200);
       clearTimeout(spawnTimer);
       scheduleSpawn();
       msg("スピードアップ");
-      beep(980,.08);
+      tone(880,.05,.035);tone(1120,.07,.035,.055);
     },12000);
   }
 }
@@ -284,6 +300,7 @@ function render(){
   });
 }
 function selectQueue(i){
+  tapSelect();
   selectedQueue=i;selectedOrgan=null;selectedAction=null;
   msg(`${foods[queue[i].kind].name}を選択中`);
   render();
@@ -309,6 +326,7 @@ function organClick(org){
   }
   if(selectedOrgan && selectedAction){judge(org);return;}
   if(organs[org]){
+    tapSelect();
     selectedOrgan=org;selectedQueue=null;selectedAction=null;
     msg(`${foods[organs[org].kind].name}を選択中`);
     render();
@@ -317,6 +335,7 @@ function organClick(org){
 document.querySelectorAll(".organ").forEach(b=>b.onclick=()=>organClick(b.dataset.organ));
 document.querySelectorAll(".action").forEach(b=>{
   b.onclick=()=>{
+    tapSelect();
     selectedAction=b.dataset.action;
     msg(selectedOrgan?"カードを使う器官をタップ":"先に食べ物のある器官を選択");
     render();
@@ -377,9 +396,10 @@ function showCombo(n){
   pop.classList.remove("combo-show");
   void pop.offsetWidth;
   pop.classList.add("combo-show");
+  if(n>0 && n%10===0){tone(880,.05,.035);tone(1320,.09,.035,.06)}
 }
 function good(t){msg(t);flash("good");beep(850)}
-function absorb(t){msg(`${t} / COMBO ×${combo}`);flash("absorb");beep(1040,.09)}
+function absorb(t){msg(`${t} / COMBO ×${combo}`);flash("absorb");tone(980,.06,.04);tone(1320,.09,.035,.06)}
 function miss(t){
   combo=0;
   life--;
@@ -407,7 +427,7 @@ function endGame(reason){
   document.getElementById("result").classList.remove("hidden");
 
   let rank=score>=80?"S":score>=45?"A":score>=20?"B":"C";
-  let key=mode==="60" ? "digestiveRank60_combo_"+difficulty : "digestiveRankFree_combo";
+  let key=mode==="60" ? "digestiveFinalRank60_"+difficulty : "digestiveFinalRankFree";
   let list=JSON.parse(localStorage.getItem(key)||"[]");
   let record=mode==="60" ? {score,maxCombo} : {score,time:elapsed,maxCombo};
   list.push(record);
