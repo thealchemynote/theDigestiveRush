@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>theDigestiveRush v5 Combo</title>
+<style>
+:root{
+  --bg:#061018;--panel:#101b27;--panel2:#16263a;--line:#2d435b;
+  --text:#eef8ff;--muted:#8ea8bd;--cyan:#35d0ff;--mint:#9cffd2;
+  --red:#ff4d6d;--gold:#ffe66d;--purple:#c79cff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;overflow:hidden;text-align:center;color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at top,#1a3a55 0%,#071018 55%,#02060b 100%);
+}
+.screen{
+  width:100%;max-width:430px;height:100svh;margin:0 auto;padding:12px;
+  display:flex;flex-direction:column;gap:8px;position:relative;
+}
+.hidden{display:none!important}
+.card{
+  margin:auto 0;padding:22px 14px;border:1px solid var(--line);border-radius:24px;
+  background:linear-gradient(180deg,rgba(22,38,58,.96),rgba(7,14,23,.98));
+  box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 0 24px rgba(53,208,255,.08);
+}
+h1{font-size:33px;margin:0 0 5px;letter-spacing:.4px}
+h2{margin:8px 0}
+.subtitle{color:var(--muted);font-size:13px;margin:4px 0 16px}
+button{
+  border:0;border-radius:999px;padding:12px 17px;margin:5px;font-weight:800;
+  color:#031018;background:linear-gradient(135deg,var(--cyan),var(--mint));
+  box-shadow:0 8px 22px rgba(53,208,255,.18);
+}
+button.secondary{background:#223246;color:var(--text);border:1px solid var(--line)}
+.small{font-size:12px;color:var(--muted);line-height:1.55}
+.topbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;font-size:11px}
+.stat{background:rgba(16,27,39,.9);border:1px solid var(--line);border-radius:14px;padding:6px 2px}
+.stat b{display:block;font-size:17px;color:var(--text)}
+.section{
+  background:rgba(16,27,39,.88);border:1px solid var(--line);border-radius:18px;padding:8px;
+  box-shadow:inset 0 0 20px rgba(53,208,255,.035);
+}
+.label{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;letter-spacing:.13em;margin:0 2px 5px}
+.row{display:flex;gap:6px;justify-content:center;align-items:center}
+.queue-slot,.organ,.action{
+  user-select:none;border:1px solid var(--line);background:linear-gradient(180deg,#172638,#0c1723);
+  border-radius:14px;color:var(--text);
+}
+.queue-slot{
+  width:15.2%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:25px;
+}
+.queue-slot.empty{opacity:.35}
+.organ-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.organ{min-height:58px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.organ .food{font-size:25px;height:28px}
+.organ .name{font-size:14px;color:var(--muted)}
+.action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.action{min-height:42px;padding:5px 2px;display:flex;flex-direction:column;justify-content:center;font-size:11px;font-weight:700}
+.action .icon{font-size:16px}
+.selected{outline:2px solid var(--gold);box-shadow:0 0 18px rgba(255,230,109,.35)}
+#msg{min-height:28px;color:var(--mint);font-size:13px;padding:4px}
+.flash-good{animation:good .16s}.flash-bad{animation:bad .16s}.flash-absorb{animation:absorb .22s}
+@keyframes good{0%{box-shadow:0 0 0 999px rgba(53,208,255,.20)}100%{box-shadow:none}}
+@keyframes bad{0%{box-shadow:0 0 0 999px rgba(255,77,109,.24)}100%{box-shadow:none}}
+@keyframes absorb{0%{box-shadow:0 0 0 999px rgba(255,230,109,.30)}100%{box-shadow:none}}
+.bad-shake{animation:shake .18s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+#comboPop{
+  pointer-events:none;position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
+  font-weight:900;font-size:34px;letter-spacing:.04em;color:var(--gold);
+  text-shadow:0 0 12px rgba(255,230,109,.65),0 0 28px rgba(53,208,255,.35);
+  opacity:0;
+}
+.combo-show{animation:comboPop .65s ease-out}
+@keyframes comboPop{
+  0%{opacity:0;transform:translate(-50%,-45%) scale(.75)}
+  22%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+  100%{opacity:0;transform:translate(-50%,-58%) scale(1)}
+}
+.ranklist{line-height:1.75;color:var(--text)}
+</style>
+</head>
+<body>
+
+<div id="title" class="screen">
+  <div class="card" id="modeCard">
+    <h1>theDigestiveRush</h1>
+    <div class="subtitle">消化・吸収スピードアクション</div>
+    <button onclick="showDifficulty()">60秒モード</button>
+    <button onclick="startGame('endless')">フリーモード</button>
+    <p class="small">60秒モードは難易度選択。<br>フリーモードは時間無制限でだんだん加速。</p>
+  </div>
+
+  <div class="card hidden" id="difficultyCard">
+    <h2>60秒モード</h2>
+    <div class="subtitle">難易度を選択</div>
+    <button onclick="startGame('60','easy')">Easy</button>
+    <button onclick="startGame('60','normal')">Normal</button>
+    <button onclick="startGame('60','hard')">Hard</button>
+    <button onclick="startGame('60','expert')">Expert</button>
+    <br><button class="secondary" onclick="backTitle()">戻る</button>
+    <p class="small">EasyとNormalは学習しやすい速度に調整済み。</p>
+  </div>
+</div>
+
+<div id="game" class="screen hidden">
+  <div id="comboPop"></div>
+  <div class="topbar">
+    <div class="stat">LIFE<b id="life">3</b></div>
+    <div class="stat">SCORE<b id="score">0</b></div>
+    <div class="stat">COMBO<b id="combo">0</b></div>
+    <div class="stat" id="timeBox">TIME<b id="time">60</b></div>
+  </div>
+
+  <div class="section">
+    <div class="label"><span>FOOD LINE</span><span id="modeInfo">MAX 6</span></div>
+    <div id="queue" class="row"></div>
+  </div>
+
+  <div class="section">
+    <div class="label"><span>DIGESTIVE ORGANS</span><span>移動・処理</span></div>
+    <div class="organ-grid">
+      <div class="organ" data-organ="mouth"><div class="food"></div><div class="name">口</div></div>
+      <div class="organ" data-organ="stomach"><div class="food"></div><div class="name">胃</div></div>
+      <div class="organ" data-organ="duo"><div class="food"></div><div class="name">十二指腸</div></div>
+      <div class="organ" data-organ="small"><div class="food"></div><div class="name">小腸</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="label"><span>CARDS</span><span>酵素・吸収</span></div>
+    <div class="action-grid">
+      <div class="action" data-action="amylase"><span class="icon">A</span>アミラーゼ</div>
+      <div class="action" data-action="pepsin"><span class="icon">P</span>ペプシン</div>
+      <div class="action" data-action="trypsin"><span class="icon">T</span>トリプシン</div>
+      <div class="action" data-action="lipase"><span class="icon">L</span>リパーゼ</div>
+      <div class="action" data-action="bile"><span class="icon">🟢</span>胆汁</div>
+      <div class="action" data-action="blood"><span class="icon">🩸</span>毛細血管</div>
+      <div class="action" data-action="lymph"><span class="icon">🟡</span>リンパ管</div>
+      <div class="action" data-action="re"><span class="icon">↻</span>再合成</div>
+    </div>
+  </div>
+
+  <div id="msg">食べ物をタップ → 消化器官をタップ</div>
+</div>
+
+<div id="result" class="screen hidden">
+  <div class="card">
+    <h2>RESULT</h2>
+    <div id="resultText"></div>
+    <h3 id="rankingTitle">RANKING</h3>
+    <div id="ranking" class="ranklist"></div>
+    <button onclick="location.reload()">TITLE</button>
+  </div>
+</div>
+
+<script>
+let mode="60",difficulty="normal",timer=60,elapsed=0,score=0,life=3,combo=0,maxCombo=0;
+let spawn=2500,spawnTimer=null,timeLoop=null,levelLoop=null;
+let queue=[],organs={mouth:null,stomach:null,duo:null,small:null};
+let selectedQueue=null,selectedOrgan=null,selectedAction=null;
+
+const foods={
+  rice:{icon:"🍙",type:"carb",name:"おにぎり"},
+  meat:{icon:"🥩",type:"protein",name:"肉"},
+  fat:{icon:"🧈",type:"fat",name:"脂肪"}
+};
+const diff={
+  easy:{label:"Easy",spawn:4500},
+  normal:{label:"Normal",spawn:3500},
+  hard:{label:"Hard",spawn:2500},
+  expert:{label:"Expert",spawn:1500}
+};
+
+function showDifficulty(){
+  document.getElementById("modeCard").classList.add("hidden");
+  document.getElementById("difficultyCard").classList.remove("hidden");
+}
+function backTitle(){
+  document.getElementById("difficultyCard").classList.add("hidden");
+  document.getElementById("modeCard").classList.remove("hidden");
+}
+function beep(f=600,d=0.07){
+  try{
+    let a=new(window.AudioContext||window.webkitAudioContext)();
+    let o=a.createOscillator(),g=a.createGain();
+    o.connect(g);g.connect(a.destination);
+    o.frequency.value=f;o.type="sine";o.start();
+    g.gain.setValueAtTime(.045,a.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);
+    o.stop(a.currentTime+d);
+  }catch(e){}
+}
+
+function startGame(m,d){
+  mode=m; difficulty=d||"free";
+  timer=60;elapsed=0;score=0;life=3;combo=0;maxCombo=0;queue=[];
+  organs={mouth:null,stomach:null,duo:null,small:null};
+  selectedQueue=null;selectedOrgan=null;selectedAction=null;
+
+  if(mode==="60"){
+    spawn=diff[difficulty].spawn;
+    document.getElementById("time").textContent=60;
+    document.getElementById("modeInfo").textContent=diff[difficulty].label+" / MAX 6";
+  }else{
+    spawn=4500;
+    document.getElementById("time").textContent="0:00";
+    document.getElementById("modeInfo").textContent="FREE / SPEED UP";
+  }
+
+  document.getElementById("title").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  for(let i=0;i<2;i++) spawnFood(false);
+  render();
+  scheduleSpawn();
+
+  timeLoop=setInterval(()=>{
+    if(mode==="60"){
+      timer--;
+      document.getElementById("time").textContent=timer;
+      if(timer<=0) endGame("timeup");
+    }else{
+      elapsed++;
+      document.getElementById("time").textContent=formatTime(elapsed);
+    }
+  },1000);
+
+  if(mode==="endless"){
+    levelLoop=setInterval(()=>{
+      spawn=Math.max(800,spawn-150);
+      clearTimeout(spawnTimer);
+      scheduleSpawn();
+      msg("スピードアップ");
+      beep(980,.08);
+    },12000);
+  }
+}
+
+function scheduleSpawn(){
+  clearTimeout(spawnTimer);
+  spawnTimer=setTimeout(()=>{
+    spawnFood(true);
+    scheduleSpawn();
+  },spawn);
+}
+function spawnFood(check){
+  if(queue.length>=6){
+    if(check) endGame("full");
+    return;
+  }
+  let k=["rice","meat","fat"][Math.floor(Math.random()*3)];
+  queue.push({id:Date.now()+Math.random(),kind:k,step:0});
+  render();
+}
+function render(){
+  document.getElementById("life").textContent=life;
+  document.getElementById("score").textContent=score;
+  document.getElementById("combo").textContent=combo;
+  let q=document.getElementById("queue");
+  q.innerHTML="";
+  queue.forEach((f,i)=>{
+    let d=document.createElement("div");
+    d.className="queue-slot"+(selectedQueue===i?" selected":"");
+    d.textContent=foods[f.kind].icon;
+    d.onclick=()=>selectQueue(i);
+    q.appendChild(d);
+  });
+  for(let i=queue.length;i<6;i++){
+    let d=document.createElement("div");
+    d.className="queue-slot empty";
+    q.appendChild(d);
+  }
+  document.querySelectorAll(".organ").forEach(o=>{
+    let key=o.dataset.organ;
+    o.querySelector(".food").textContent=organs[key]?foods[organs[key].kind].icon:"";
+    o.classList.toggle("selected",selectedOrgan===key);
+  });
+  document.querySelectorAll(".action").forEach(a=>{
+    a.classList.toggle("selected",selectedAction===a.dataset.action);
+  });
+}
+function selectQueue(i){
+  selectedQueue=i;selectedOrgan=null;selectedAction=null;
+  msg(`${foods[queue[i].kind].name}を選択中`);
+  render();
+}
+function organClick(org){
+  if(selectedQueue!==null){
+    if(organs[org]){miss("その器官は使用中");return;}
+    let food=queue.splice(selectedQueue,1)[0];
+    organs[org]=food;
+    selectedQueue=null;selectedOrgan=org;
+    msg(`${foods[food.kind].name}を${organName(org)}へ移動`);
+    beep(520);render();return;
+  }
+  if(selectedOrgan && !selectedAction){
+    if(organs[org] && org!==selectedOrgan){miss("移動先が使用中");return;}
+    if(org!==selectedOrgan){
+      organs[org]=organs[selectedOrgan];
+      organs[selectedOrgan]=null;
+      selectedOrgan=org;
+      msg(`${organName(org)}へ移動`);
+      beep(520);render();return;
+    }
+  }
+  if(selectedOrgan && selectedAction){judge(org);return;}
+  if(organs[org]){
+    selectedOrgan=org;selectedQueue=null;selectedAction=null;
+    msg(`${foods[organs[org].kind].name}を選択中`);
+    render();
+  }
+}
+document.querySelectorAll(".organ").forEach(b=>b.onclick=()=>organClick(b.dataset.organ));
+document.querySelectorAll(".action").forEach(b=>{
+  b.onclick=()=>{
+    selectedAction=b.dataset.action;
+    msg(selectedOrgan?"カードを使う器官をタップ":"先に食べ物のある器官を選択");
+    render();
+  }
+});
+
+function judge(org){
+  let food=organs[selectedOrgan];
+  if(!food)return;
+  let type=foods[food.kind].type,a=selectedAction;
+  let ok=false,finish=false;
+
+  if(type==="carb"){
+    if(food.step===0 && a==="amylase" && org==="mouth" && selectedOrgan==="mouth"){ok=true;food.step=1;}
+    else if(food.step===1 && a==="amylase" && org==="duo" && selectedOrgan==="duo"){ok=true;food.step=2;}
+    else if(food.step===2 && a==="blood" && org==="small" && selectedOrgan==="small"){ok=true;finish=true;}
+  }
+  if(type==="protein"){
+    if(food.step===0 && a==="pepsin" && org==="stomach" && selectedOrgan==="stomach"){ok=true;food.step=1;}
+    else if(food.step===1 && a==="trypsin" && org==="duo" && selectedOrgan==="duo"){ok=true;food.step=2;}
+    else if(food.step===2 && a==="blood" && org==="small" && selectedOrgan==="small"){ok=true;finish=true;}
+  }
+  if(type==="fat"){
+    if(food.step===0 && a==="bile" && org==="duo" && selectedOrgan==="duo"){ok=true;food.step=1;}
+    else if(food.step===1 && a==="lipase" && org==="duo" && selectedOrgan==="duo"){ok=true;food.step=2;}
+    else if(food.step===2 && a==="re" && org==="small" && selectedOrgan==="small"){ok=true;food.step=3;}
+    else if(food.step===3 && a==="lymph" && org==="small" && selectedOrgan==="small"){ok=true;finish=true;}
+  }
+
+  if(ok && finish){
+    addCombo();
+    let point=comboPoint();
+    score += point;
+    organs[selectedOrgan]=null;
+    selectedOrgan=null;selectedAction=null;
+    absorb(`吸収成功 +${point}`);
+  }else if(ok){
+    addCombo();
+    selectedAction=null;
+    good(`正解 COMBO ×${combo}`);
+  }else{
+    selectedAction=null;
+    miss("ミス");
+  }
+  render();
+}
+function addCombo(){
+  combo++;
+  if(combo>maxCombo) maxCombo=combo;
+  showCombo(combo);
+}
+function comboPoint(){
+  return Math.min(5, Math.max(1, combo));
+}
+function showCombo(n){
+  let pop=document.getElementById("comboPop");
+  pop.textContent=n>=3 ? `COMBO ×${n}` : `×${n}`;
+  pop.classList.remove("combo-show");
+  void pop.offsetWidth;
+  pop.classList.add("combo-show");
+}
+function good(t){msg(t);flash("good");beep(850)}
+function absorb(t){msg(`${t} / COMBO ×${combo}`);flash("absorb");beep(1040,.09)}
+function miss(t){
+  combo=0;
+  life--;
+  msg(`${t}　LIFE -1 / COMBO RESET`);
+  flash("bad");beep(180,.11);
+  if(life<=0) endGame("life");
+  render();
+}
+function flash(kind){
+  document.body.classList.remove("flash-good","flash-bad","flash-absorb");
+  void document.body.offsetWidth;
+  document.body.classList.add(kind==="good"?"flash-good":kind==="absorb"?"flash-absorb":"flash-bad");
+  if(kind==="bad"){
+    document.getElementById("game").classList.add("bad-shake");
+    setTimeout(()=>document.getElementById("game").classList.remove("bad-shake"),190);
+  }
+}
+function msg(t){document.getElementById("msg").textContent=t}
+function organName(o){return {mouth:"口",stomach:"胃",duo:"十二指腸",small:"小腸"}[o]}
+function formatTime(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+
+function endGame(reason){
+  clearTimeout(spawnTimer);clearInterval(timeLoop);clearInterval(levelLoop);
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+
+  let rank=score>=80?"S":score>=45?"A":score>=20?"B":"C";
+  let key=mode==="60" ? "digestiveRank60_combo_"+difficulty : "digestiveRankFree_combo";
+  let list=JSON.parse(localStorage.getItem(key)||"[]");
+  let record=mode==="60" ? {score,maxCombo} : {score,time:elapsed,maxCombo};
+  list.push(record);
+  list.sort((a,b)=> mode==="60" ? b.score-a.score : (b.score-a.score || b.time-a.time));
+  list=list.slice(0,5);
+  localStorage.setItem(key,JSON.stringify(list));
+
+  let reasonText={timeup:"60秒終了",full:"食べ物ライン満杯",life:"ライフ切れ"}[reason]||"終了";
+  let title=mode==="60" ? `60秒 ${diff[difficulty].label}` : "フリーモード";
+  document.getElementById("resultText").innerHTML =
+    `<div class="subtitle">${title}</div><h1>${score}</h1><p>${reasonText}</p>`+
+    (mode==="endless"?`<p>Survival Time ${formatTime(elapsed)}</p>`:"")+
+    `<p>MAX COMBO ×${maxCombo}</p><h2>RANK ${rank}</h2>`;
+
+  document.getElementById("rankingTitle").textContent = mode==="60" ? `RANKING / ${diff[difficulty].label}` : "RANKING / FREE";
+  document.getElementById("ranking").innerHTML=list.map((r,i)=>{
+    return mode==="60" ? `${i+1}. ${r.score}　×${r.maxCombo}` : `${i+1}. ${r.score}　${formatTime(r.time)}　×${r.maxCombo}`;
+  }).join("<br>");
+}
+</script>
+</body>
+</html>
